@@ -45,7 +45,7 @@ public class ExperimentRunner {
 
         if (twitterGraph != null) {
             System.out.printf("%-10s | %-8s | %-8s | %-10s | %-10s | %-10s\n",
-                    "Dataset", "Kahn(ms)", "DFS(ms)", "Full-Dij", "Real-Dij", "AuxMem(MB)[K|D|J]");
+                    "Dataset", "Kahn(ms)", "DFS(ms)", "Full-Dij(MB)", "Real-Dij(MB)", "AuxMem(MB)[K|D|DJF|DJR]");
             System.out.println("--------------------------------------------------------------------------------------");
 
             int warmUps = 1;
@@ -62,14 +62,18 @@ public class ExperimentRunner {
             long tDijReal = measureTimeWithWarmup(() -> algo.dijkstraShortestPath(twitterGraph, 21432, 21435), warmUps, measures);
             double memK = measureMemorySpecific(() -> algo.kahnTopologicalSort(twitterGraph));
             double memD = measureMemorySpecific(() -> algo.hasCycleDFS(twitterGraph));
-            double memDJ = measureMemorySpecific(() -> algo.dijkstraShortestPath(twitterGraph, start, -1));
-            System.out.printf("%-10s | %-8d | %-8d | %-10d | %-10d | K:%.1f, D:%.1f, DJ:%.1f\n",
-                    "Twitter", tKahn, tDFS, tDijFull, tDijReal, memK, memD, memDJ);
+            double memDijFull = measureMemorySpecific(() -> algo.dijkstraShortestPath(twitterGraph, start, -1));
+            double memDijReal = measureMemorySpecific(() -> algo.dijkstraShortestPath(twitterGraph, 21432, 21435));
+
+            System.out.printf("%-10s | %-8d | %-8d | %-10d | %-10d | K:%.1f, D:%.1f, DF:%.1f, DR:%.1f\n",
+                    "Twitter", tKahn, tDFS, tDijFull, tDijReal, memK, memD, memDijFull, memDijReal);
             System.out.println("======================================================================================");
         }
 
-        // Demonstrate the capability of Kahn's algorithm
-        System.out.println("\n[Automated Decision Demonstration: Topological Sorting Result Display]");
+        // -----------------------------------------------------------
+        // Test3: Demonstrate the capability of Kahn's algorithm
+        // -----------------------------------------------------------
+        System.out.println("\n\n==================== Test3: Demonstrate the capability of Kahn's algorithm ====================");
         Graph<Integer> demoGraph = generateRandomDAG(10, 15);
         List<Integer> result = algo.kahnTopologicalSort(demoGraph);
 
@@ -86,18 +90,15 @@ public class ExperimentRunner {
         Graph<Integer> graph = new Graph<>(true);
         Random rand = new Random();
 
-        // 添加所有顶点
         for (int i = 0; i < vCount; i++) {
             graph.addVertex(i);
         }
 
-        // 添加随机边
         int edgesAdded = 0;
         while (edgesAdded < eCount) {
             int u = rand.nextInt(vCount);
             int v = rand.nextInt(vCount);
 
-            // 强制 u < v 保证无环，且不添加自环
             if (u < v) {
                 graph.addEdge(u, v);
                 edgesAdded++;

@@ -80,13 +80,9 @@ public class GraphAlgorithms {
     }
 
     public <T> List<T> dijkstraShortestPath(Graph<T> graph, T startNode, T targetNode) {
-        // 1. Distance table: records the shortest distance from the starting point to each node
         Map<T, Integer> distances = new HashMap<>();
-        // 2. Path backtracking table: records from which predecessor node each node was reached
         Map<T, T> previousNodes = new HashMap<>();
-        // 3. Priority queue (min-heap): automatically selects the node closest to the starting point each time
         PriorityQueue<NodeDistance<T>> minHeap = new PriorityQueue<>();
-        // 4. Visit Tag Set: Prevent Backtracking
         Set<T> visited = new HashSet<>();
 
         for (T vertex : graph.getAllVertices()) {
